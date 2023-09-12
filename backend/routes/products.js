@@ -28,8 +28,75 @@ const storage = multer.diskStorage({
     }
 });
 
-const uploadOptions = multer({ storage: storage });
+const uploadOptions = multer({
 
+    limits: { fieldSize: 25 * 1024 * 1024 },
+  
+    storage: storage,
+  
+  });
+
+
+//base 64 image product post
+
+router.post('/base', uploadOptions.single('image'), async (req, res) => {
+
+    console.log(req.body);
+  
+    const category = await Category.findById(req.body.category);
+  
+    console.log(category);
+  
+    if (!category) {
+  
+      console.log('in ! category');
+  
+      return res.status(400).send('Invalid category');
+  
+    }
+  
+    let product = new Product({
+  
+      name: req.body.name,
+  
+      description: req.body.description,
+  
+      richDescription: req.body.richDescription,
+  
+      image: req.body.image,
+  
+      brand: req.body.brand,
+  
+      price: req.body.price,
+  
+      category: req.body.category,
+  
+      countInStock: req.body.countInStock,
+  
+      rating: req.body.rating,
+  
+      numReviews: req.body.numReviews,
+  
+      isFeatured: req.body.isFeatured,
+  
+    });
+  
+  
+  
+    product = await product.save();
+  
+    if (!product) {
+  
+      return res.status(500).send('The product can not be created');
+  
+    }
+  
+  
+  
+    res.send(product);
+  
+  });
+  
 router.get(`/`, async (req, res) => {
     let filter = {};
     if (req.query.categories) {
